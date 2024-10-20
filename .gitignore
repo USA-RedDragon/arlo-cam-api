@@ -5,3 +5,5 @@ dist/
 *.avi
 *.db
 .python-version
+venv/
+*.mpg
