@@ -1,3 +1,4 @@
+import os
 import select
 import socket
 import threading
@@ -19,7 +20,7 @@ with open(r'config.yaml') as file:
 
 webhook_manager = WebHookManager(config)
 
-with sqlite3.connect('arlo.db') as conn:
+with sqlite3.connect(os.getenv('DB_PATH', 'arlo.db')) as conn:
     c = conn.cursor()
     tables = c.execute("SELECT tbl_name FROM sqlite_schema WHERE type='table' AND tbl_name='camera'").fetchall()
     if tables != []:
