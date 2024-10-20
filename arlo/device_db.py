@@ -1,3 +1,4 @@
+import os
 import threading
 import sqlite3
 import functools
@@ -20,7 +21,7 @@ class DeviceDB:
     @staticmethod
     @synchronized
     def from_db_serial(serial):
-        with sqlite3.connect('arlo.db') as conn:
+        with sqlite3.connect(os.getenv('DB_PATH', 'arlo.db')) as conn:
             c = conn.cursor()
             c.execute("SELECT * FROM devices WHERE serialnumber = ?", (serial,))
             result = c.fetchone()
@@ -29,7 +30,7 @@ class DeviceDB:
     @staticmethod
     @synchronized
     def from_db_ip(ip):
-        with sqlite3.connect('arlo.db') as conn:
+        with sqlite3.connect(os.getenv('DB_PATH', 'arlo.db')) as conn:
             c = conn.cursor()
             c.execute("SELECT * FROM devices WHERE ip = ?", (ip,))
             result = c.fetchone()
@@ -54,7 +55,7 @@ class DeviceDB:
     @staticmethod
     @synchronized
     def persist(device: Device):
-        with sqlite3.connect('arlo.db') as conn:
+        with sqlite3.connect(os.getenv('DB_PATH', 'arlo.db')) as conn:
             c = conn.cursor()
             # Remove the IP for any redundant device that has the same IP...
             c.execute("UPDATE devices SET ip = 'UNKNOWN' WHERE ip = ? AND serialnumber <> ?",
@@ -66,7 +67,7 @@ class DeviceDB:
     @staticmethod
     @synchronized
     def delete(device: Device):
-        with sqlite3.connect('arlo.db') as conn:
+        with sqlite3.connect(os.getenv('DB_PATH', 'arlo.db')) as conn:
             c = conn.cursor()
             # Remove the IP for any redundant device that has the same IP...
             c.execute("DELETE FROM devices WHERE ip = ? AND serialnumber = ?",

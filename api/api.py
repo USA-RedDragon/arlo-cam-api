@@ -41,7 +41,7 @@ def home():
 
 @app.route('/device', methods=['GET'])
 def list():
-    with sqlite3.connect('arlo.db') as conn:
+    with sqlite3.connect(os.getenv('DB_PATH', 'arlo.db')) as conn:
         c = conn.cursor()
         c.execute("SELECT * FROM devices")
         rows = c.fetchall()
