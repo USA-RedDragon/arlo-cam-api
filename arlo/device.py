@@ -38,7 +38,7 @@ class Device(ABC):
             try:
                 sock.connect((self.ip if not use_hostnames else self.hostname, port or self.port))
             except OSError as msg:
-                print('Connection to camera failed: {msg}')
+                print(f'Connection to camera failed: {msg}')
                 return False
 
             result = False
