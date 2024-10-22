@@ -56,10 +56,14 @@ class DeviceDB:
     @synchronized
     def persist(device: Device):
         with sqlite3.connect(os.getenv('DB_PATH', 'arlo.db')) as conn:
+            use_hostnames = os.getenv('USE_HOSTNAMES', 'False').lower() in ('true', '1')
+
             c = conn.cursor()
-            # Remove the IP for any redundant device that has the same IP...
-            c.execute("UPDATE devices SET ip = 'UNKNOWN' WHERE ip = ? AND serialnumber <> ?",
-                      (device.ip, device.serial_number))
+
+            if not use_hostnames:
+                # Remove the IP for any redundant device that has the same IP...
+                c.execute("UPDATE devices SET ip = 'UNKNOWN' WHERE ip = ? AND serialnumber <> ?",
+                        (device.ip, device.serial_number))
             c.execute("REPLACE INTO devices VALUES (?,?,?,?,?,?)", (device.ip, device.serial_number,
                       device.hostname, repr(device.registration), repr(device.status), device.friendly_name))
             conn.commit()
@@ -68,9 +72,16 @@ class DeviceDB:
     @synchronized
     def delete(device: Device):
         with sqlite3.connect(os.getenv('DB_PATH', 'arlo.db')) as conn:
+            use_hostnames = os.getenv('USE_HOSTNAMES', 'False').lower() in ('true', '1')
+
             c = conn.cursor()
-            # Remove the IP for any redundant device that has the same IP...
-            c.execute("DELETE FROM devices WHERE ip = ? AND serialnumber = ?",
-                      (device.ip, device.serial_number))            
+
+            if not use_hostnames:
+                # Remove the IP for any redundant device that has the same IP...
+                c.execute("DELETE FROM devices WHERE ip = ? AND serialnumber = ?",
+                      (device.ip, device.serial_number))  
+            else:
+                c.execute("DELETE FROM devices WHERE serialnumber = ?",
+                      (device.serial_number,))          
             conn.commit()
             return True
