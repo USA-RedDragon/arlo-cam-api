@@ -1,3 +1,4 @@
+import os
 import socket
 import sys
 import copy
@@ -31,10 +32,11 @@ class Device(ABC):
 
     def send_message(self, message: Message, port=None):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            use_hostnames = os.getenv('USE_HOSTNAMES', 'False').lower() in ('true', '1')
 
             sock.settimeout(5.0)
             try:
-                sock.connect((self.ip, port or self.port))
+                sock.connect((self.ip if not use_hostnames else self.hostname, port or self.port))
             except OSError as msg:
                 print('Connection to camera failed: {msg}')
                 return False
